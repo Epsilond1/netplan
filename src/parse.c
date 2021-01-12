@@ -1930,6 +1930,8 @@ static const mapping_entry_handler nm_backend_settings_handlers[] = {
     {"uuid", YAML_SCALAR_NODE, handle_netdef_str, NULL, netdef_offset(backend_settings.nm.uuid)},
     {"stable-id", YAML_SCALAR_NODE, handle_netdef_str, NULL, netdef_offset(backend_settings.nm.stable_id)},
     {"device", YAML_SCALAR_NODE, handle_netdef_str, NULL, netdef_offset(backend_settings.nm.device)},
+    /* Fallback mode, to support all NM settings of the NetworkManager netplan backend */
+    {"passthrough", YAML_MAPPING_NODE, handle_netdef_map, NULL, netdef_offset(backend_settings.nm.passthrough)},
     {NULL}
 };
 
@@ -2405,6 +2407,7 @@ handle_network_type(yaml_document_t* doc, yaml_node_t* node, const void* data, G
             case NETPLAN_DEF_TYPE_TUNNEL: handlers = tunnel_def_handlers; break;
             case NETPLAN_DEF_TYPE_VLAN: handlers = vlan_def_handlers; break;
             case NETPLAN_DEF_TYPE_WIFI: handlers = wifi_def_handlers; break;
+            case NETPLAN_DEF_TYPE_OTHER: handlers = ethernet_def_handlers; break;
             default: g_assert_not_reached(); // LCOV_EXCL_LINE
         }
         if (!process_mapping(doc, value, handlers, NULL, error))
@@ -2461,6 +2464,7 @@ static const mapping_entry_handler network_handlers[] = {
     {"vlans", YAML_MAPPING_NODE, handle_network_type, NULL, GUINT_TO_POINTER(NETPLAN_DEF_TYPE_VLAN)},
     {"wifis", YAML_MAPPING_NODE, handle_network_type, NULL, GUINT_TO_POINTER(NETPLAN_DEF_TYPE_WIFI)},
     {"modems", YAML_MAPPING_NODE, handle_network_type, NULL, GUINT_TO_POINTER(NETPLAN_DEF_TYPE_MODEM)},
+    {"others", YAML_MAPPING_NODE, handle_network_type, NULL, GUINT_TO_POINTER(NETPLAN_DEF_TYPE_OTHER)},
     {"openvswitch", YAML_MAPPING_NODE, NULL, ovs_network_settings_handlers},
     {NULL}
 };
